@@ -48,8 +48,8 @@ export default function App() {
   });
 
   if (authenticated) {
-    return <Navigator />;
+    return <Authentication />;
   }
 
-  return < Navigator onGoogleButtonPress={onGoogleButtonPress} />;
+  return < Authentication onGoogleButtonPress={onGoogleButtonPress} />;
 }
