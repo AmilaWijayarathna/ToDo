@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableWithoutFeedback, Keyboard, Modal, FlatList, TouchableOpacity, TouchableHighlight } from 'react-native';
+import { StyleSheet, Text, Button, View, ScrollView, TouchableWithoutFeedback, Keyboard, Modal, FlatList, TouchableOpacity, TouchableHighlight } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import CreateTask from './createTask';
 import { Swipeable } from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import firebase from 'firebase'
+import firebaseConfig from '../FirebaseConfig'
+import auth from '@react-native-firebase/auth';
+
 // import Swipeable from 'react-native-swipeable';
 
 export default function Todos() {
@@ -12,8 +16,31 @@ export default function Todos() {
   const [saveData, setSaveData] = useState(false);
   const [swipedRow, setSwipedRow] = useState(null);
 
+  var app = null;
+
+  if (!firebase.apps.length) {
+    console.log(firebaseConfig)
+    app = firebase.initializeApp({
+      apiKey: "AIzaSyArz20SuhpNar4pbZyaxgDbtRI3iYu-Fsc",
+    authDomain: "todoapp-ce797.firebaseapp.com",
+    databaseURL: "https://todoapp-ce797-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "todoapp-ce797",
+    storageBucket: "todoapp-ce797.appspot.com",
+    messagingSenderId: "1074726529303",
+    appId: "1:1074726529303:web:6fcc6e979e502bf7ab6f52"
+    });
+  } else {
+    app = firebase.app(); // if already initialized, use that one
+  }
+  const db = app.database();
+  const userId = "Amila"; // need to replace auth().currentUser.userId;
+  const todoRef = db.ref('/Todos/'+ userId)
+
+    todoRef.on('value', snapshot => {
+    console.log('User data: ', snapshot.val());
+  });
+
   const addTodoToList = (todo) => {
-    console.log('=============================')
     todo.key = Math.random().toString();
     setTodos((currentTodos) => {
       return [todo, ...currentTodos];
@@ -37,6 +64,8 @@ export default function Todos() {
       alert(err);
     }
   };
+
+  // function 
 
   const leftContent = <Text>Pull to activate</Text>;
 
@@ -81,13 +110,16 @@ export default function Todos() {
         </TouchableWithoutFeedback>
       </Modal>
 
-      <View
-        name="title"
+      {/* <View
         size={200}
-        backgroundColor = '#000000'
+        backgroundColor='#000000'
         style={styles.modalToggle}
         onClick={() => setModalOpen(true)}
-      />
+      /> */}
+
+      <Button title="Add Task"
+        style={styles.modalToggle}
+        onPress={() => setModalOpen(true)} />
 
       {/* <MaterialIcons
         name="add"

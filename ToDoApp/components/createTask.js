@@ -1,16 +1,52 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, Button, TextInput, TouchableOpacity, FlatList, ScrollView } from 'react-native';
 import { Formik } from 'formik';
+import firebase from 'firebase'
+import firebaseConfig from '../FirebaseConfig'
+import auth from '@react-native-firebase/auth';
+
 
 export default function CreateTask({ addTodoToList }) {
+
+    var app = null;
+    // const user = auth().currentUser.userId;
+
+    if (!firebase.apps.length) {
+        console.log(firebaseConfig)
+        app = firebase.initializeApp({
+            apiKey: "AIzaSyArz20SuhpNar4pbZyaxgDbtRI3iYu-Fsc",
+            authDomain: "todoapp-ce797.firebaseapp.com",
+            databaseURL: "https://todoapp-ce797-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "todoapp-ce797",
+            storageBucket: "todoapp-ce797.appspot.com",
+            messagingSenderId: "1074726529303",
+            appId: "1:1074726529303:web:6fcc6e979e502bf7ab6f52"
+        });
+    } else {
+        app = firebase.app(); // if already initialized, use that one
+    }
+    const db = app.database();
+    const userId = "Amila"; // need to replace auth().currentUser.userId;
+    const todoRef = db.ref('/Todos/'+ userId)
+
+    
+
     return (
         <View style={styles.container}>
             <Formik
                 initialValues={{ title: '', assignee: '', date: '' }}
                 onSubmit={(values, actions) => {
                     console.log(values);
-                    actions.resetForm(); 
+                    actions.resetForm();
                     addTodoToList(values);
+
+                    todoRef.push().set({
+                            task: values.title,
+                            name: values.assignee,
+                            date: values.date,
+                            isDone: false,
+                        })
+                        .then(() => console.log('Data set.'));
                 }}
             >
                 {props => (
